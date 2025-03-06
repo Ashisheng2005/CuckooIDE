@@ -1,12 +1,16 @@
-# 项目名称
+# ![Owner avatar](https://avatars.githubusercontent.com/u/140964125?s=48&v=4)         **[CuckooIDE](https://github.com/Ashisheng2005/CuckooIDE)**  
 
 
 
-github 版本
+该项目展示停止开发，原因是该项目采用的是python + tkiner,不只是性能上，UI界面和许多方面都具有很大限制，目前准备转为 **[electron](https://github.com/electron/electron)** + python  + Flask + [shadcn-ui](https://github.com/shadcn-ui/ui) 开发 ——  **[RIDE](https://github.com/Ashisheng2005/RIDE)**     ，所以此仓库作为tkinter学习使用，对于其中一些再封装的组件我将其另起一个项目：    **[ATK](https://github.com/Ashisheng2005/ATK)**     ，在这个项目中我会完善组件和编写完全的使用教程。
 
-许可证
+当前项目其实已经将ollama和Live2D的api封装好了，后续如果有机会，会给出一个流程闭环的成品。
 
+此仓库内自带虚拟环境和第三方库，
 
+git至本地后直接使用 \.venv\Scripts\python 中的编译器运行\UIFrame\windowFrame.py即可启动项目。
+
+——2025.3.6
 
 
 

@@ -1,0 +1,9 @@
+{
+  "keyword": "#FF9900",
+  "function": "#6633FF",
+  "builtins": "#9876AA",
+  "lineComment" : "gray",
+  "dir_sys": "#B200B2",
+  "string": "#629755",
+  "number": "#0DAAEE"
+}

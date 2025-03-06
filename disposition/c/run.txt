@@ -1,0 +1,3 @@
+gcc -c {file_name}.c -o {file_name}.o
+gcc {file_name}.o -o {file_name}.exe
+{file_name}.exe

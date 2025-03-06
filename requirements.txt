@@ -1,0 +1,9 @@
+chardet
+live2d-py
+ollama
+numpy
+pillow
+PyOpenGL
+pyopengltk
+pyautogui
+

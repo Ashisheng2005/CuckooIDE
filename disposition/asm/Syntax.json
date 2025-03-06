@@ -1,0 +1,20 @@
+{
+  "GDTI": "#CC7832",
+  "IOPTR": "#629755",
+  "DATI": "#0DAAEE",
+  "FTI": "#8888C6",
+  "AOI": "#9876AA",
+  "SI": "#FF33e9",
+  "UPTI": "#C70039",
+  "CTI": "#FF3333",
+  "LCI": "#33FFFB",
+  "II": "#33FF41",
+  "PCI": "#FFFC33",
+  "PI": "#FFAE33",
+  "PFPI": "#20853B",
+  "LO": "#00fff7",
+  "lineComment": "gray",
+  "char": "#00ff2a",
+  "Tabs": 4,
+  "root_bg": "#3C3f41"
+}

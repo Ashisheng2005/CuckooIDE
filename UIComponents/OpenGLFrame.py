@@ -19,11 +19,9 @@ import live2d.v3 as live2d
 
 class MyOpenGLFrame(OpenGLFrame):
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, model_path=None, *args, **kwargs):
 
-        self.live2d_model_path = kwargs.get("model_path", False)
-        if "model_path" in kwargs:
-            del kwargs['model_path']
+        self.live2d_model_path = model_path
 
         OpenGLFrame.__init__(self, *args, **kwargs)
         # 相对路劲调整

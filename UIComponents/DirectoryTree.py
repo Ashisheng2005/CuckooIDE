@@ -5,126 +5,203 @@
 # @Version：V 1.0
 # @File : DirectoryTree.py
 # @desc : README.md
-import os.path
-# try:
-#     from tkinter import Frame, LEFT, Y, END, Tk, Scrollbar, RIGHT
-#     from tkinter import ttk
-#     from os.path import basename, join, isdir
-#     from os import listdir
-#
-#     from sys import path as sys_path
-#     sys_path.append("..")
-#     from Function import UIFunction
-#
-# except Exception as error:
-#     print(error)
 
+
+import os
+import tkinter as tk
+from tkinter import ttk, Menu
 from os import listdir
-# from pathlib import Path
-from os.path import basename, join, isdir
-from tkinter import Frame, LEFT, Y, END, Tk, Scrollbar, RIGHT, Menu, StringVar
-from tkinter import ttk
-from UIComponents.ConvenienceMenu import ConvenienceMenu
+from os.path import basename, join, isdir, normpath
+from functools import lru_cache
 
 
-class DirectoryTree(Frame):
-    """树状目录"""
-
-    def __init__(self, master, path):
-        super().__init__(master=master)
+class DirectoryTree(ttk.Frame):
+    def __init__(self, master, path, refresh_interval=10000):
+        super().__init__(master)
         self.master = master
-        path = str(path)
-        self.path = path
-        # 树状组件初始化
-        self.tree = ttk.Treeview(master)
-        self.tree.pack(side=LEFT, fill=Y)
-        tmp_path = path.replace('\\', '-')
-        # 首先建造一个根节点并插入树状目录中
-        root = self.tree.insert('', END,
-                                text=basename(path),
-                                open=True,
-                                values=(tmp_path,))
+        self.path = normpath(path)
+        self.refresh_interval = refresh_interval
+        self.file_types = ['.py', '.c', '.asm', '.jar']
 
-        # 递归开始
-        self._load_tree(root, path)
+        # 使用 PanedWindow 来允许调整大小
+        self.paned = ttk.PanedWindow(self.master, orient=tk.HORIZONTAL)
+        self.paned.pack(fill=tk.BOTH, expand=True)
 
-        # 可创建的文件类型
-        self.file_type_True = ['.py', '.c', ".asm", '.jar']
+        # 初始化Treeview框架
+        self.tree_frame = ttk.Frame(self.paned)
+        self.paned.add(self.tree_frame, weight=1)
+        self.tree_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 滚动条
-        y_scrollbar = Scrollbar(self.master)
-        y_scrollbar.pack(side=RIGHT, fill=Y)
-        y_scrollbar.config(command=self.tree.yview)
+        # 初始化Treeview
+        self.tree = ttk.Treeview(self.tree_frame)
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.tree.config(yscrollcommand=y_scrollbar.set)
+        # 初始化滚动条
+        self.scrollbar = ttk.Scrollbar(self.tree_frame, orient="vertical", command=self.tree.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
 
-        # 用户选中的项目,用作刷新的时候标记
-        self.user_select_item = StringVar()
-        # 挂在右击菜单栏
-        self.tree.bind('<Button-3>', self.show_menu)
+        # 初始化上下文菜单
+        self.context_menu = Menu(self.master, tearoff=0)
+        self._init_context_menu()
 
-        self.refresh()
+        # 绑定事件
+        self.tree.bind("<<TreeviewSelect>>", self._update_selection)
+        self.tree.bind("<Button-3>", self.show_context_menu)
+        self.tree.bind("<Double-1>", self._toggle_node)
+        self.tree.bind("<<TreeviewOpen>>", self._on_open)  # 改为 TreeviewOpen 事件
 
-    def refresh(self):
-        # self.tree.delete('')
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        self.pack()
 
-        tmp_path = self.path.replace('\\', '-')
-        root = self.tree.insert('', END,
-                                text=basename(str(self.path)),
-                                open=True,
-                                values=(tmp_path,))
+        # 添加调整大小的功能
+        self.resize_handle_width = 5  # 调整手柄的宽度（像素）
+        self.tree.bind('<Motion>', self._on_mouse_motion)
+        self.tree.bind('<ButtonPress-1>', self._on_mouse_press)
+        self.tree.bind('<B1-Motion>', self._on_mouse_drag)
+        self.tree.bind('<ButtonRelease-1>', self._on_mouse_release)
+        self.resizing = False
+        self.default_cursor = self.tree['cursor']
 
-        # 递归开始
-        self._load_tree(root, self.path)
-        # print('refresh')
+        # 初始加载根节点
+        self._load_initial()
+        self.auto_refresh()
 
-        self.tree.update()
-        self.tree.after(10000, self.refresh)
+    def _on_mouse_motion(self, event):
+        """鼠标移动时检查是否在右边缘"""
+        x = event.x
+        tree_width = self.tree.winfo_width()
+        if abs(x - tree_width) <= self.resize_handle_width and x > 10:  # 避免与节点交互冲突
+            self.tree.configure(cursor='sb_h_double_arrow')
+        else:
+            self.tree.configure(cursor=self.default_cursor)
 
-    def show_menu(self, event):
-        menu_widget = self.menu(event)
-        menu_widget.post(event.x + self.master.winfo_rootx(),
-                       event.y + self.master.winfo_rooty())
-        self.master.update()
+    def _on_mouse_press(self, event):
+        """鼠标按下时开始调整大小"""
+        x = event.x
+        tree_width = self.tree.winfo_width()
+        if abs(x - tree_width) <= self.resize_handle_width:
+            self.resizing = True
 
-    def menu(self, event):
+    def _on_mouse_drag(self, event):
+        """拖动时调整宽度"""
+        if self.resizing:
+            new_width = event.x
+            if new_width > 80:  # 设置最小宽度
+                # self.tree.column("#0", width=new_width)
+                self.configure(width=new_width)
+                # self.paned.configure(width=new_width)
+                # self.paned.update()
+                # self.update()
+                # self.tree.configure(width=new_width)
 
-        # 新建子菜单
-        new_file_menu = Menu(self.master, tearoff=False)
-        new_file_menu.add_command(label='文件')
-        new_file_menu.add_command(label='目录')
-        new_file_menu.add_separator()
-        # 根据列表内容动态变更菜单
-        for _ in self.file_type_True:
-            new_file_menu.add_command(label=f'{_} 文件', command=lambda i=_: self.create_file(event, i))
+    def _on_mouse_release(self, event):
+        """鼠标释放时结束调整"""
+        self.resizing = False
 
-        # 右击菜单栏
-        tree_menu = Menu(self.master, tearoff=False)
-        tree_menu.add_cascade(label='新建', accelerator='Ctrl+N', menu=new_file_menu)
-        tree_menu.add_command(label='删除', accelerator='Delete')
+    def _load_initial(self):
+        """只加载根节点"""
+        root_node = self.tree.insert('', 'end', text=basename(self.path),
+                                     values=(self.path,), open=False)
+        if self._has_children(self.path):
+            self.tree.insert(root_node, 'end', text='Loading...')  # 占位符
 
-        tree_menu.add_command(label='粘贴', accelerator='Ctrl+V')
-        tree_menu.add_command(label='回滚', accelerator='Ctrl+H')
-        tree_menu.add_command(label='重构', accelerator='Ctrl+R')
-        tree_menu.add_separator()
-        tree_menu.add_command(label='运行', accelerator='Ctrl+Shift+F10')
-        tree_menu.add_command(label='调试', accelerator='Ctrl+D')
+    @lru_cache(maxsize=128)
+    def _has_children(self, path):
+        """检查目录是否有子项，使用缓存"""
+        try:
+            return any(True for _ in listdir(path))
+        except (PermissionError, OSError):
+            return False
 
-        return tree_menu
+    def _load_children(self, parent, path):
+        """按需加载子节点"""
+        # 先删除占位符
+        children = self.tree.get_children(parent)
+        if children and self.tree.item(children[0])['text'] == 'Loading...':
+            self.tree.delete(children[0])
 
-    def create_file(self, event, file_type):
-        """根据file_type创建文件"""
-
-        path = self.select_file(event)
-        if not path:
-            return
-
-        if os.path.isdir(path):
+        try:
+            for name in sorted(listdir(path)):
+                abs_path = join(path, name)
+                node = self.tree.insert(parent, 'end', text=basename(abs_path),
+                                        values=(abs_path,), open=False)
+                if isdir(abs_path) and self._has_children(abs_path):
+                    self.tree.insert(node, 'end', text='Loading...')
+        except (PermissionError, OSError):
             pass
 
-        print(file_type)
+    def _on_open(self, event):
+        """节点展开时加载子节点"""
+        node = self.tree.focus()
+        if not node:
+            return
+        path = self.tree.item(node)['values'][0]
+        if isdir(path):
+            self._load_children(node, path)
+
+    def _toggle_node(self, event):
+        """双击切换节点展开状态"""
+        node = self.tree.identify_row(event.y)
+        if node and isdir(self.tree.item(node)['values'][0]):
+            if self.tree.item(node)['open']:
+                self.tree.item(node, open=False)
+            else:
+                self.tree.item(node, open=True)
+                # 这里不再需要手动调用 _load_children，因为 <<TreeviewOpen>> 会处理
+
+    def _on_expand(self, event):
+        """节点展开时加载子节点"""
+        node = self.tree.focus()
+        if not node:
+            return
+        path = self.tree.item(node)['values'][0]
+        if isdir(path):
+            self._load_children(node, path)
+
+    def auto_refresh(self):
+        """定时检查变化并局部刷新"""
+        self._check_changes()
+        self.after(self.refresh_interval, self.auto_refresh)
+
+    def _check_changes(self):
+        """检查变化并局部更新"""
+        for node in self.tree.get_children(''):
+            if self.tree.item(node)['open']:
+                path = self.tree.item(node)['values'][0]
+                current_children = set(self.tree.item(c)['text']
+                                       for c in self.tree.get_children(node)
+                                       if self.tree.item(c)['text'] != 'Loading...')
+                disk_children = set(basename(join(path, name))
+                                    for name in listdir(path))
+
+                if current_children != disk_children:
+                    self.tree.delete(*self.tree.get_children(node))
+                    self._load_children(node, path)
+
+    def _init_context_menu(self):
+        """初始化右键上下文菜单"""
+        new_menu = Menu(self.context_menu, tearoff=0)
+        for ext in self.file_types:
+            new_menu.add_command(
+                label=f"新建 {ext} 文件",
+                command=lambda e=ext: self._create_file(e)
+            )
+        new_menu.add_separator()
+        new_menu.add_command(label="新建目录", command=self._create_folder)
+
+        self.context_menu.add_cascade(label="新建", menu=new_menu)
+        self.context_menu.add_command(label="删除", command=self._delete_item)
+        self.context_menu.add_command(label="刷新", command=self._check_changes)
+
+    def _update_selection(self, event):
+        selected = self.tree.selection()
+        self.current_selection = self.tree.item(selected[0])['values'][0] if selected else None
+
+    def show_context_menu(self, event):
+        item = self.tree.identify_row(event.y)
+        if item:
+            self.tree.selection_set(item)
+            self.context_menu.tk_popup(event.x_root, event.y_root)
 
     def select_file(self, event):
         """选中项目时候触发事件"""
@@ -139,22 +216,56 @@ class DirectoryTree(Frame):
 
             return file_path
 
-    def _load_tree(self, parent, parent_path):
-        """通过递归的方式来排列出每个文件夹内容"""
+    def _create_file(self, extension):
+        if not self.current_selection:
+            return
+        try:
+            base_path = self.current_selection if isdir(self.current_selection) else os.path.dirname(
+                self.current_selection)
+            counter = 1
+            while True:
+                new_file = join(base_path, f"新建文件{counter}{extension}")
+                if not os.path.exists(new_file):
+                    open(new_file, 'w').close()
+                    self._check_changes()
+                    break
+                counter += 1
+        except Exception as e:
+            print(f"创建文件失败: {e}")
 
-        for file_name in listdir(parent_path):
-            abs_path = join(parent_path, file_name)
-            tmp_path = abs_path.replace('\\', '-')
-            tree = self.tree.insert(parent, END,
-                                    text=basename(abs_path),
-                                    values=(tmp_path,))
+    def _create_folder(self):
+        if not self.current_selection:
+            return
+        try:
+            base_path = self.current_selection if isdir(self.current_selection) else os.path.dirname(
+                self.current_selection)
+            counter = 1
+            while True:
+                new_dir = join(base_path, f"新建文件夹{counter}")
+                if not os.path.exists(new_dir):
+                    os.makedirs(new_dir)
+                    self._check_changes()
+                    break
+                counter += 1
+        except Exception as e:
+            print(f"创建目录失败: {e}")
 
-            # 如果是文件夹，继续递归
-            if isdir(abs_path):
-                self._load_tree(tree, abs_path)
+    def _delete_item(self):
+        if not self.current_selection or self.current_selection == self.path:
+            return
+        try:
+            if os.path.isfile(self.current_selection):
+                os.remove(self.current_selection)
+            elif os.path.isdir(self.current_selection):
+                os.rmdir(self.current_selection)
+            self._check_changes()
+        except Exception as e:
+            print(f"删除失败: {e}")
 
 
-if __name__ == '__main__':
-    demo = Tk()
-    DirectoryTree(demo, path=r'E:\IDE')
-    demo.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    tree = DirectoryTree(root, r"E:\IDE")
+    tree.pack(fill=tk.BOTH, expand=True)
+    root.mainloop()
+

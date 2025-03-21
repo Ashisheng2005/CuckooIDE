@@ -15,7 +15,7 @@ class ReceiverText(Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master=master, *args, **kwargs)
 
-        self.receiver_text = ScrolledText(self.master, height=15, fg='#FFFFFF', bg="#3c3f41", font=("consolas", 11))
+        self.receiver_text = ScrolledText(self.master, height=15, font=("consolas", 11))
 
         # 默认模式为只读
         # self.receiver_text['state'] = "disabled"

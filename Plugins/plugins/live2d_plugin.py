@@ -15,7 +15,10 @@ from pyautogui import position
 from os import path
 import live2d.v3 as live2d
 
-from Plugins.plugins_base import BasePlugin
+from sys import path as sys_path
+sys_path.append("..")
+
+from plugins_base import BasePlugin
 
 
 class MyOpenGLFrame(OpenGLFrame):

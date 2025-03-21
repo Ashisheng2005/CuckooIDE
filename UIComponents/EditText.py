@@ -79,9 +79,9 @@ class EditText(Frame):
         self.x_scrollbar = Scrollbar(self.master, orient=HORIZONTAL)
         # 代码编辑框
         kwargs['font'] = self.font
-        self.Text = ScrolledText(self.master, **kwargs, wrap='none', undo=True, fg='#FFFFFF', bg="#3c3f41")
+        self.Text = ScrolledText(self.master, **kwargs, wrap='none', undo=True)
         # 左侧行标框
-        self.Row_mark = Text(self.master, fg='#FFFFFF', bg="#3c3f41",**kwargs)
+        self.Row_mark = Text(self.master,**kwargs)
         # 查找和替换的Frame
         self.find_replace_frame = Frame(self.master)
         self.find_frame = FindSubstitutionFrame(
@@ -95,8 +95,8 @@ class EditText(Frame):
         # 文本略缩图, 强制构建一个未初始化的tcl可以理解的空间层名称，详情见BaseWidget._setup
         self.peer = "!".join(self.Text.__str__().split("!")[:-1]) + "!peer"
 
-        self.Text.peer_create(self.peer, borderwidth=0, relief='flat', font=("consolas", 1), height=160,fg='#FFFFFF',
-                              bg="#3c3f41", insertbackground='#000000', insertborderwidth=1, wrap='char')
+        self.Text.peer_create(self.peer, borderwidth=0, relief='flat', font=("consolas", 1), height=160,
+                              insertbackground='#000000', insertborderwidth=1, wrap='char')
 
         # 初始化之后的属性绑定
         self._initialization()
@@ -197,10 +197,6 @@ class EditText(Frame):
 
             self.Text.insert('insert', " " * spaces)
 
-
-
-
-
     def set_font_size(self, event):
         """根据鼠标滚轮改变字体大小"""
 
@@ -233,7 +229,7 @@ class EditText(Frame):
         self.Text.tag_add('line_highlight', f"{row}.0", f"{row + 1}.0")
         self.Row_mark.tag_add('line_highlight', f"{row}.0", f"{row + 1}.0")
 
-        self.Text.tag_config('line_highlight', background="#000000")
+        self.Text.tag_config('line_highlight', background="#d6e1c2")
         self.Row_mark.tag_config('line_highlight', background='gray', foreground='white')
         self.Text.tag_configure("search_highlight", background="yellow")
 

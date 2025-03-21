@@ -21,6 +21,8 @@ try:
     from disposition.py.actuator_py import ActuatorPy
     from disposition.c.actuator_c import ActuatorC
     from disposition.java.actuator_java import ActuatorJava
+    from disposition.cpp.actuator_Cpp import ActuatorCpp
+
 
 except FileNotFoundError as error:
     print(f"File not find:{error}")
@@ -43,7 +45,8 @@ class Actuator:
         """文件类型分类器"""
         actuator_dict = {'py': ActuatorPy,
                          'c': ActuatorC,
-                         'java': ActuatorJava
+                         'java': ActuatorJava,
+                         'cpp': ActuatorCpp
                          }
 
         for suffix in actuator_dict.keys():

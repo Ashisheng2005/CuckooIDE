@@ -45,6 +45,7 @@ class WindowFrame(Frame):
         self.placement()
 
     def placement(self):
+        self.edit_frame.pack(fill=BOTH, expand=True)
         self.edit.pack(fill=BOTH, expand=True)
         self.receive.pack(fill=BOTH, expand=True)
         self.tool_Frame.add_command(self.remember_button, "运行")

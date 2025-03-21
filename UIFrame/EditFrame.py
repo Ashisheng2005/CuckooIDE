@@ -25,26 +25,30 @@ except FileNotFoundError as error:
 
 def _image_file(file_name):
     suffix = file_name.split(".")[-1]
-    if suffix == 'py':
-        return r"..\resources\python.png"
+    table = {'py':r"..\resources\python.png",
+             'c': r"..\resources\c.png",
+             'java': r"..\resources\java.png",
+             'cpp': r"..\resources\cpp.png"
+             }
 
-    elif suffix == 'c':
-        return r"..\resources\c.png"
+    if suffix in table:
+        return table[suffix]
 
-    elif suffix == 'java':
-        return r"..\resources\java.png"
+    return None
 
 
 def _resources_file(file_name):
     suffix = file_name.split(".")[-1]
-    if suffix == 'py':
-        return r"..\disposition\py\keyword.json", r"..\disposition\py\Syntax.json"
+    table = {
+        'py': (r"..\disposition\py\keyword.json", r"..\disposition\py\Syntax.json"),
+        'c': (r"..\disposition\c\keyword.json", r"..\disposition\c\Syntax.json"),
+        'java': (r"..\disposition\java\keyword.json", r"..\disposition\java\Syntax.json"),
+        'cpp': (r"..\disposition\cpp\keyword.json", r"..\disposition\cpp\Syntax.json")
+    }
+    if suffix in table:
+        return table[suffix]
 
-    elif suffix == 'c':
-        return r"..\disposition\c\keyword.json", r"..\disposition\c\Syntax.json"
-
-    elif suffix == 'java':
-        return r"..\disposition\java\keyword.json", r"..\disposition\c\Syntax.json"
+    return None
 
 
 class EditFrame(Frame):
@@ -58,10 +62,10 @@ class EditFrame(Frame):
         # 向下传递的接收器
         self.receiver_widget = receiver_widget
         # 初始状态的edit框架
-        frame_1 = Frame(self.master)
-        frame_1.pack(side=LEFT, fill=BOTH)
+        frame_1 = Frame(self)
+        frame_1.pack(side=LEFT, fill="y", expand=True)
         # 标签页控件
-        self.not_book = NotBook(self.master)
+        self.not_book = NotBook(self)
         frame_2 = self.not_book.get_frame()
         # frame_2.pack()
         # 目录框显示文件, path=父路径 E:\IDE
@@ -178,8 +182,8 @@ class EditFrame(Frame):
         del self.Edit_table[tab_id]
 
     def placement(self):
-        self.Dir_Tree.pack(side=LEFT)
-        self.Text.pack()
+        self.Dir_Tree.pack(side=LEFT, fill="y")
+        self.Text.pack(fill=BOTH, expand=True)
 
         self.not_book.pack(fill=BOTH, expand=True)
 

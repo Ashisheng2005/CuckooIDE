@@ -10,6 +10,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk, Menu
+from tkinter.filedialog import askdirectory
 from os import listdir
 from os.path import basename, join, isdir, normpath
 from functools import lru_cache
@@ -89,10 +90,6 @@ class DirectoryTree(ttk.Frame):
             if new_width > 80:  # 设置最小宽度
                 # self.tree.column("#0", width=new_width)
                 self.configure(width=new_width)
-                # self.paned.configure(width=new_width)
-                # self.paned.update()
-                # self.update()
-                # self.tree.configure(width=new_width)
 
     def _on_mouse_release(self, event):
         """鼠标释放时结束调整"""
@@ -192,10 +189,17 @@ class DirectoryTree(ttk.Frame):
         self.context_menu.add_cascade(label="新建", menu=new_menu)
         self.context_menu.add_command(label="删除", command=self._delete_item)
         self.context_menu.add_command(label="刷新", command=self._check_changes)
+        self.context_menu.add_command(label="切换目录", command=self._select_mkdir)
 
     def _update_selection(self, event):
         selected = self.tree.selection()
         self.current_selection = self.tree.item(selected[0])['values'][0] if selected else None
+
+    def _select_mkdir(self):
+        new_path = askdirectory()
+        if new_path:
+            self.path = normpath(path=new_path)
+            self._load_initial()
 
     def show_context_menu(self, event):
         item = self.tree.identify_row(event.y)

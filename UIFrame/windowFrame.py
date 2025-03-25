@@ -42,6 +42,16 @@ class WindowFrame(Frame):
             command=self.set_receive_frame,
             select_foreground='#FFFFFF'
         )
+
+        self.run_status = RoundedButton(
+            self.tool_Frame.root,
+            image=[r"..\resources\stop.png","../resources/run.png"],
+            radius=30,
+            width=30,
+            height=30,
+            command=self.set_run_status,
+            select_foreground='#FFFFFF'
+        )
         self.placement()
 
     def placement(self):
@@ -49,6 +59,7 @@ class WindowFrame(Frame):
         self.edit.pack(fill=BOTH, expand=True)
         self.receive.pack(fill=BOTH, expand=True)
         self.tool_Frame.add_command(self.remember_button, "运行")
+        self.tool_Frame.add_command(self.run_status, "状态")
         self.tool.pack(fill=Y, expand=True)
 
     def forget_frame(self):
@@ -69,6 +80,8 @@ class WindowFrame(Frame):
 
         else:
             self.remember_frame()
+
+    def set_run_status(self): ...
 
 
 if __name__ == '__main__':

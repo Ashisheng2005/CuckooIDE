@@ -26,7 +26,7 @@ class RoundedButton(tk.Canvas):
     """基于Canvas实现的圆角按钮"""
 
     def __init__(self, master, text="", radius=25, padding=10, command=None,
-                 fore_ground='#FFFFFF', select_foreground='#2f5496', font=None, **kwargs):
+                 fore_ground='#FFFFFF', select_foreground='#2f5496', font=None, image=None, **kwargs):
         tk.Canvas.__init__(self, master, **kwargs)
         self.text = text
         self.radius = radius
@@ -34,6 +34,8 @@ class RoundedButton(tk.Canvas):
         self.command = command
         self.foreground = fore_ground
         self.font = font
+        self.image_path = image
+        self._image = None
         self.select_foreground = select_foreground
         self.bind("<Button-1>", self.on_click)
         self.bind("<Enter>", self.mouse_enter)
@@ -86,6 +88,19 @@ class RoundedButton(tk.Canvas):
             text=self.text,
             font=self.font if self.font else ("Helvetica", 12)
         )
+
+        if self.image_path:
+            # 默认支持双图片切换，如果传入的参数是支持的情况下
+            if type(self.image_path) in [str, tuple, list, set]:
+                self._image = self.image_path[self.value]
+
+            else:
+                self._image = self.image_path
+
+            image = tk.PhotoImage(file=self._image)
+            self.create_image(20, 18, anchor='center', image=image)
+            # 还必须要手动指定image属性才行，label也是的，哎
+            self.image = image
 
     def on_click(self, event):
         """"""

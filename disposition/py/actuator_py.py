@@ -21,6 +21,12 @@ class ActuatorPy(ActuatorTemplate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.suffix = "py"
+
+    @property
+    def get_suffix(self) -> str:
+        return 'py'
+
     def thread_monitoring(self):
 
         process = Popen(

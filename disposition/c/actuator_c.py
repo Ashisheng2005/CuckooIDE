@@ -20,14 +20,22 @@ class ActuatorC(ActuatorTemplate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # 初始化bat文件
-        self.bat_path = self.get_bat_path()
-        self.write_bat()
+        self.suffix = "c"
+
+        # 如果存在控件id，则执行，否则视为单纯的插件检查
+        if self.receiver_widget:
+            # 初始化bat文件
+            self.bat_path = self.get_bat_path()
+            self.write_bat()
 
     def get_bat_path(self):
         path = "\\".join(getcwd().split('\\')[:-1])
         path += "\\disposition\\c\\run.bat"
         return path
+
+    @property
+    def get_suffix(self) -> str:
+        return 'c'
 
     def write_bat(self):
         file_name = self.script_path[:-2]

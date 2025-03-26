@@ -9,6 +9,7 @@ import os
 
 from tkinter import Tk, Frame, Button, LEFT, BOTH, CHAR
 from os import path as os_path
+from os import getcwd
 from pathlib import Path as pathlib_path
 from threading import Thread
 from UIComponents.EditText import EditText
@@ -19,6 +20,7 @@ from Function import UIFunction
 from Function.actuator import Actuator
 try:
     from Plugins.plugins.SyntaxOn_plugin import SyntaxOnPlugin
+    from disposition.ActuatorManager import getActuatorSuffix
 except FileNotFoundError as error:
     print(error)
 
@@ -40,10 +42,7 @@ def _image_file(file_name):
 def _resources_file(file_name):
     suffix = file_name.split(".")[-1]
     table = {
-        'py': (r"..\disposition\py\keyword.json", r"..\disposition\py\Syntax.json"),
-        'c': (r"..\disposition\c\keyword.json", r"..\disposition\c\Syntax.json"),
-        'java': (r"..\disposition\java\keyword.json", r"..\disposition\java\Syntax.json"),
-        'cpp': (r"..\disposition\cpp\keyword.json", r"..\disposition\cpp\Syntax.json")
+        key: (fr"..\disposition\{key}\keyword.json", fr"..\disposition\{key}\Syntax.json") for key in getActuatorSuffix(path_=getcwd() + "/../disposition/", key=True)
     }
     if suffix in table:
         return table[suffix]

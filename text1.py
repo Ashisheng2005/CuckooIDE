@@ -1,5 +1,7 @@
-a = input()
-print(a)
+print(123)
+
+
+
 
 
 

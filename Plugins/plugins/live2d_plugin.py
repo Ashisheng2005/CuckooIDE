@@ -15,10 +15,10 @@ from pyautogui import position
 from os import path
 import live2d.v3 as live2d
 
-from sys import path as sys_path
-sys_path.append("..")
+# from sys import path as sys_path
+# sys_path.append("..")
 
-from plugins_base import BasePlugin
+from Plugins.plugins_base import BasePlugin
 
 
 class MyOpenGLFrame(OpenGLFrame):
@@ -34,7 +34,7 @@ class MyOpenGLFrame(OpenGLFrame):
         self.live2d_dir = path.join(parent_path, 'live2d')
         # 识别live2d的模型路径
         if not self.live2d_model_path:
-            self.live2d_dir_join(r"米塔\\3.model3.json")
+            self.live2d_dir_join(r"E:\IDE\Plugins\live2d\米塔\3.model3.json")
 
         else:
             self.live2d_dir_join(self.live2d_model_path)
@@ -134,8 +134,8 @@ class Live2dPlugin(BasePlugin):
     def version(self) -> str:
         return '1.0'
 
-    def activate(self, frame: tk.Frame, **kwargs) -> None:
-        self.live2d_frame = MyOpenGLFrame(frame, **kwargs)
+    def activate(self, frame: tk.Frame,*args, **kwargs) -> None:
+        self.live2d_frame = MyOpenGLFrame(frame, *args, **kwargs)
         self.live2d_frame.pack()
 
     def deactivate(self) -> None:

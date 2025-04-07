@@ -22,7 +22,7 @@ def read_resources(file_path):
 class SyntaxOnPlugin(BasePlugin):
     """针对文本编辑框的语法高亮和跨级操作插件"""
 
-    def __init__(self, widget: Text, keyword_path=None, syntax_path=None):
+    def __init__(self, widget: Text=None, keyword_path=None, syntax_path=None):
         self.text = widget
         self.keyword_path = keyword_path
         self.syntax_path = syntax_path

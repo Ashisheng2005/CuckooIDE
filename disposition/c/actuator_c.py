@@ -67,6 +67,10 @@ gcc {file_name}.o -o {file_name}.exe
 
             # 如果子进程任在运行
             while process.poll() is None:
+                # 如果没有强制终止
+                if not self.thread_lock:
+                    break
+
                 output = stream.read()
                 # output = stream.readline()
                 output = output.encode("ISO-8859-1").decode("utf-8")

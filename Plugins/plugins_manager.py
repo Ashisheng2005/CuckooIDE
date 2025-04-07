@@ -21,7 +21,7 @@ class PluginManager:
         self.plugins = {}
         self.load_plugins()
 
-    def load_plugins(self):
+    def load_plugins(self) -> dict:
         """加载插件"""
 
         plugins_dir = Path(__file__).parent / "plugins"
@@ -50,6 +50,8 @@ class PluginManager:
 
             except Exception as e:
                 print(f"Error loading plugin {file.name}: {e}")
+
+        return self.plugins
 
 
 class MainApplication(tk.Tk):

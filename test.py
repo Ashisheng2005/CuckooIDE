@@ -139,3 +139,4 @@ if __name__ == "__main__":
     # frame.bind("<Configure>", frame._on_configure)
 
     root.mainloop()
+

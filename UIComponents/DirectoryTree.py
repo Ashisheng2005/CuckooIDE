@@ -114,8 +114,12 @@ class DirectoryTree(ttk.Frame):
         """按需加载子节点"""
         # 先删除占位符
         children = self.tree.get_children(parent)
-        if children and self.tree.item(children[0])['text'] == 'Loading...':
-            self.tree.delete(children[0])
+
+        # if children and self.tree.item(children[0])['text'] == 'Loading...':
+        #     self.tree.delete(children[0])
+
+        # 不做判断，全部删除
+        self.tree.delete(*children)
 
         try:
             for name in sorted(listdir(path)):

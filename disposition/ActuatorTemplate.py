@@ -16,13 +16,13 @@ from abc import abstractmethod
 class ActuatorTemplate:
     """执行器模板"""
 
-    def __init__(self, script_path=None, receiver_widget=None):
+    def __init__(self, script_path=None, receiver_widget=None, controller=True):
         # 执行文件目录
         self.script_path = script_path
         # 接受返回结果控件id
         self.receiver_widget = receiver_widget
-        # 线程锁
-        self.thread_lock = False
+        # 线程锁, 为False 终止执行, 线程控制器
+        self.thread_lock = controller
         # 占用线程
         self.thread_current = None
         # 不同执行器占用后缀

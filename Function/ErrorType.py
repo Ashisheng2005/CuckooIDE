@@ -29,7 +29,20 @@ class ConnectError(Ollama_):
     def __init__(self, *args, **kwargs):
         pass
 
+
 class ParametersNotFind(Exception):
 
-    def __init__(self, *array, **keyword):
+    def __init__(self, *args, **kwargs):
         pass
+
+
+class ModelStartError(Exception):
+
+    def __init__(self, *args, **kwargs):
+        ...
+
+
+class NotFindModel(Exception):
+
+    def __init__(self, *args, **kwargs):
+        ...

@@ -14,6 +14,12 @@ from EditFrame import EditFrame
 from UIComponents.RoundedCornerButton import RoundedButton
 from ReceiverFrame import ReceiverFrame
 from ToolFrame import ToolFrame
+from PluginFrame import PluginFrame
+from Function.actuator import Actuator
+
+"""
+整个系统的调度中枢
+"""
 
 
 class WindowFrame(Frame):
@@ -28,7 +34,13 @@ class WindowFrame(Frame):
         self.receive_frame = ReceiverFrame(self.receive)
 
         self.edit = Frame(self.root)
-        self.edit_frame = EditFrame(self.edit, receiver_widget=self.receive_frame)
+        execute_command = Actuator(receiver_widget=self.receive_frame)
+        self.edit_frame = EditFrame(self.edit, receiver_widget=self.receive_frame, execute_command=execute_command)
+
+        # 插件frame
+        self.plugins_frame = Frame(self.master)
+        PluginFrame(self.plugins_frame)
+        self.plugins_frame.pack(side=LEFT, fill=BOTH, expand=True)
 
         self.tool = Frame(self.master)
         self.tool_Frame = ToolFrame(self.tool)
@@ -45,7 +57,7 @@ class WindowFrame(Frame):
 
         self.run_status = RoundedButton(
             self.tool_Frame.root,
-            image=[r"..\resources\stop.png","../resources/run.png"],
+            image=[r"..\resources\stop.png", "../resources/run.png"],
             radius=30,
             width=30,
             height=30,

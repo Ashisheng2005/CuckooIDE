@@ -94,6 +94,7 @@ class ReceiverText(Frame):
                 # print(f"Pasted lines: {processed_lines}")
 
             # 自动滚动到最后
+            self.receiver_text.insert('end', '\n')
             self.receiver_text.see('end')
 
             # 延迟处理后续逻辑，确保界面更新完成

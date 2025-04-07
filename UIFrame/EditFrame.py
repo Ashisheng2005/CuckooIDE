@@ -27,7 +27,7 @@ except FileNotFoundError as error:
 
 def _image_file(file_name):
     suffix = file_name.split(".")[-1]
-    table = {'py':r"..\resources\python.png",
+    table = {'py': r"..\resources\python.png",
              'c': r"..\resources\c.png",
              'java': r"..\resources\java.png",
              'cpp': r"..\resources\cpp.png"
@@ -52,7 +52,7 @@ def _resources_file(file_name):
 
 class EditFrame(Frame):
 
-    def __init__(self, master, receiver_widget=None, *args, **kwargs):
+    def __init__(self, master, receiver_widget=None, execute_command=None, *args, **kwargs):
         super().__init__(master=master, *args, **kwargs)
         # edit注册表 结构画像: List( Tuple( Text_width_Name, file_Name, file_path, frame_id ), ... )
         self.Edit_table = []
@@ -60,6 +60,9 @@ class EditFrame(Frame):
         self.actuator = None
         # 向下传递的接收器
         self.receiver_widget = receiver_widget
+        # 调度中枢分配的执行函数, 指定是一个执行器对象
+        self.execute_command = execute_command
+
         # 初始状态的edit框架
         frame_1 = Frame(self)
         frame_1.pack(side=LEFT, fill="y", expand=True)
@@ -152,9 +155,19 @@ class EditFrame(Frame):
             self.receiver_widget.insert('end', f'Save File Error:{self.Edit_table[tab_id][1]}')
 
         # 初始化一个执行器
-        self.actuator = Actuator(self.Edit_table[tab_id][2], self.receiver_widget)
+        # self.actuator = Actuator(self.Edit_table[tab_id][2], self.receiver_widget)
+
+        # 使用调度提供的执行器，方便控制线程
+        # self.actuator = self.execute_command()
+
+        # 因为是中枢调度，所以需要初始化目录
+        # self.execute_command.set_
+
+        # 先调用后缀识别，初始换执行器
+        self.execute_command.classifier(self.Edit_table[tab_id][2])
+
         # self.actuator.run()
-        run = Thread(target=self.actuator.run, daemon=True)
+        run = Thread(target=self.execute_command.run, daemon=True)
         run.start()
 
     def all_file_save(self):
